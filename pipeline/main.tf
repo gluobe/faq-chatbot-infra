@@ -1,85 +1,140 @@
-resource "aws_s3_bucket" "codepipeline_bucket" {
-  bucket = "${var.name}-bucket"
-  acl    = "private"
+/*
+resource "aws_kms_key" "kms" {
+  description             = "KMS key"
+  deletion_window_in_days = 7
+}
+*/
+resource "aws_iam_role" "pipeline_iam_role" {
+  name               = "${var.name}-pipeline_iam_role"
+  assume_role_policy = "${data.aws_iam_policy_document.assume.json}"
 }
 
-resource "aws_iam_role" "codepipeline_role" {
-  name = "${var.name}-pipeline-role"
+data "aws_iam_policy_document" "assume" {
+  statement {
+    sid = ""
 
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "codepipeline.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
+    actions = [
+      "sts:AssumeRole",
+    ]
+
+    principals {
+      type        = "Service"
+      identifiers = ["codepipeline.amazonaws.com"]
     }
-  ]
-}
-EOF
+
+    effect = "Allow"
+  }
 }
 
-resource "aws_iam_role_policy" "codepipeline_policy" {
-  name = "codepipeline_policy"
-  role = "${aws_iam_role.codepipeline_role.id}"
-
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect":"Allow",
-      "Action": [
-        "s3:GetObject",
-        "s3:GetObjectVersion",
-        "s3:GetBucketVersioning"
-      ],
-      "Resource": [
-        "${aws_s3_bucket.codepipeline_bucket.arn}",
-        "${aws_s3_bucket.codepipeline_bucket.arn}/*"
-      ]
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "codebuild:BatchGetBuilds",
-        "codebuild:StartBuild"
-      ],
-      "Resource": "*"
-    }
-  ]
+resource "aws_iam_role_policy_attachment" "default" {
+  role       = "${aws_iam_role.pipeline_iam_role.id}"
+  policy_arn = "${aws_iam_policy.policy-pipeline.arn}"
 }
-EOF
+
+resource "aws_iam_policy" "policy-pipeline" {
+  name   = "policy"
+  policy = "${data.aws_iam_policy_document.default.json}"
+}
+
+data "aws_iam_policy_document" "default" {
+  statement {
+    sid = ""
+
+    actions = [
+      "ec2:*",
+      "elasticloadbalancing:*",
+      "autoscaling:*",
+      "cloudwatch:*",
+      "s3:*",
+      "sns:*",
+      "cloudformation:*",
+      "rds:*",
+      "sqs:*",
+      "ecs:*",
+      "iam:PassRole",
+    ]
+
+    resources = ["*"]
+    effect    = "Allow"
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "s3" {
+  role       = "${aws_iam_role.pipeline_iam_role.id}"
+  policy_arn = "${aws_iam_policy.s3.arn}"
+}
+
+
+resource "aws_iam_policy" "s3" {
+  name   = "s3policy"
+  policy = "${data.aws_iam_policy_document.s3.json}"
+}
+
+data "aws_iam_policy_document" "s3" {
+  statement {
+    sid = ""
+
+    actions = [
+      "s3:GetObject",
+      "s3:GetObjectVersion",
+      "s3:GetBucketVersioning",
+      "s3:PutObject",
+    ]
+
+    resources = [
+      "${var.bucket_arn}",
+      "${var.bucket_arn}/*",
+    ]
+
+    effect = "Allow"
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "codebuild" {
+  role       = "${aws_iam_role.pipeline_iam_role.id}"
+  policy_arn = "${aws_iam_policy.codebuild.arn}"
+}
+
+resource "aws_iam_policy" "codebuild" {
+  name   = "codebuildpol"
+  policy = "${data.aws_iam_policy_document.codebuild.json}"
+}
+
+data "aws_iam_policy_document" "codebuild" {
+  statement {
+    sid = ""
+
+    actions = [
+      "codebuild:*",
+    ]
+
+    resources = ["${var.project_id}"]
+    effect    = "Allow"
+  }
 }
 
 resource "aws_codepipeline" "codepipeline" {
   name     = "${var.name}-pipeline"
-  role_arn = "${aws_iam_role.codepipeline_role.arn}"
+  role_arn = "${aws_iam_role.pipeline_iam_role.arn}"
 
   artifact_store {
-    location = "${aws_s3_bucket.codepipeline_bucket.bucket}"
+    location = "${var.bucket}"
     type     = "S3"
-
-
   }
-
   stage {
     name = "Source"
 
     action {
-      name             = "${var.name}-Source"
+      name             = "Source"
       category         = "Source"
       owner            = "ThirdParty"
       provider         = "GitHub"
       version          = "1"
-      output_artifacts = ["${var.name}_source_output"]
+      output_artifacts = ["code"]
 
 
       configuration = {
-        OAuthToken  = "bb36d8e68ac75f186eae44731ff75cdfdfbcc750"
+        OAuthToken  = "437e4e736977f51078671ea33a79e74e31e016f5"
         Owner  = "gluobe"
         Repo   = "faq-chatbot-app"
         Branch = "master"
@@ -91,12 +146,12 @@ resource "aws_codepipeline" "codepipeline" {
     name = "Build"
 
     action {
-      name            = "${var.name}-Build"
+      name            = "Build"
       category        = "Build"
       owner           = "AWS"
       provider        = "CodeBuild"
-      input_artifacts = ["${var.name}_source_output"]
-      output_artifacts = ["${var.name}_build_output"]
+      input_artifacts = ["code"]
+      output_artifacts = ["image"]
       version         = "1"
 
       configuration = {
@@ -113,7 +168,7 @@ resource "aws_codepipeline" "codepipeline" {
       category         = "Deploy"
       owner            = "AWS"
       provider         = "ECS"
-      input_artifacts  = ["${var.name}_build_output"]
+      input_artifacts  = ["image"]
       version          = "1"
 
       configuration {
@@ -124,3 +179,13 @@ resource "aws_codepipeline" "codepipeline" {
     }
   }
 }
+
+
+
+
+
+
+#-----------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+#-----------------------------------------------------------------------------------------------------------------------
+

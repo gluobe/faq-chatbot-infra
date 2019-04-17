@@ -8,7 +8,11 @@ terraform {
 provider "aws" {
   region = "${var.region}"
 }
+module "repos" {
+  source = "./repositories"
 
+  name = "faq_chat"
+}
 # ---------------------------------------------------------------------------------------------------------------------
 # CREATE THE vpc
 # ---------------------------------------------------------------------------------------------------------------------
@@ -23,6 +27,8 @@ module "build_project_faq_chatbot" {
   source = "./codebuild"
 
   name = "faq-chatbot-build-project"
+  bucket_location = "${module.repos.s3_bucket_location}"
+
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -133,4 +139,8 @@ module "Faq_codePipeline" {
   build_project_name = "${module.build_project_faq_chatbot.project_name}"
   ClusterName = "${module.ecs_cluster_faq_chatbot.cluster_name}"
   ServiceName = "${module.faq_chatbot_service.service_name}"
+  project_id = "${module.build_project_faq_chatbot.project_id}"
+
+  bucket = "${module.repos.s3_bucket_location}"
+  bucket_arn = "${module.repos.s3_bucket_arn}"
 }

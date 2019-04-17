@@ -11,3 +11,13 @@ variable "ClusterName" {
 variable "ServiceName" {
   description = "The name of the service to use in the cluster"
 }
+
+variable "project_id" {
+  description = "The id of the buildproject"
+}
+variable "bucket" {
+  description = "artifact bucket"
+}
+variable "bucket_arn" {
+  description = "artifact bucket arn"
+}

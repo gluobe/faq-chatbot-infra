@@ -126,6 +126,10 @@ resource "aws_codebuild_project" "codebuild_project" {
     Name    = "codebuild_project"
     Project = "${var.project_naam}"
   }
+  cache {
+    type     = "S3"
+    location = "${var.bucket_location}"
+  }
 
   artifacts {
     type = "NO_ARTIFACTS"
@@ -138,7 +142,6 @@ resource "aws_codebuild_project" "codebuild_project" {
     image_pull_credentials_type = "CODEBUILD"
     privileged_mode             = true
   }
-
   source {
     type            = "GITHUB"
     location        = "https://github.com/gluobe/faq-chatbot-app.git"
@@ -147,7 +150,6 @@ resource "aws_codebuild_project" "codebuild_project" {
       type = "OAUTH"
     }
   }
-
   tags = {
     Name    = "VPC-faq-chatbot"
     Project = "${var.name}"
