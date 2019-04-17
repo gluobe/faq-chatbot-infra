@@ -102,7 +102,7 @@ module "faq_chatbot_service" {
   image_version = "latest"
   cpu           = 1024
   memory        = 768
-  desired_count = 3
+  desired_count = 1
 
   container_port = "80"
   host_port      = "80"
@@ -124,4 +124,13 @@ module "faq_codedeploy" {
   target_group_name1 = "${module.faq_chatbot_elb.target_group1_name}"
   target_group_name2 = "${module.faq_chatbot_elb.target_group2_name}"
   compute_platform   = "ECS"
+}
+
+module "Faq_codePipeline" {
+  source = "./pipeline"
+
+  name = "faq-chatbot"
+  build_project_name = "${module.build_project_faq_chatbot.project_name}"
+  ClusterName = "${module.ecs_cluster_faq_chatbot.cluster_name}"
+  ServiceName = "${module.faq_chatbot_service.service_name}"
 }

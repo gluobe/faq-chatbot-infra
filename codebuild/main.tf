@@ -140,8 +140,8 @@ resource "aws_codebuild_project" "codebuild_project" {
   }
 
   source {
-    type            = "BITBUCKET"
-    location        = "https://simba-black@bitbucket.org/xploregroup/gluo-faq-chatbot.git"
+    type            = "GITHUB"
+    location        = "https://github.com/gluobe/faq-chatbot-app.git"
     git_clone_depth = 1
     auth {
       type = "OAUTH"
@@ -153,6 +153,4 @@ resource "aws_codebuild_project" "codebuild_project" {
     Project = "${var.name}"
   }
 }
-resource "aws_codebuild_webhook" "bitbucket" {
-  project_name = "${aws_codebuild_project.codebuild_project.name}"
-}
+
