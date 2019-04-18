@@ -8,10 +8,13 @@ terraform {
 provider "aws" {
   region = "${var.region}"
 }
+# ---------------------------------------------------------------------------------------------------------------------
+# Repositories ecr and S3
+# ---------------------------------------------------------------------------------------------------------------------
 module "repos" {
   source = "./repositories"
 
-  name = "faq_chat"
+  name = "faq-chat"
 }
 # ---------------------------------------------------------------------------------------------------------------------
 # CREATE THE vpc
@@ -19,7 +22,6 @@ module "repos" {
 module "vpc_faq_chatbot" {
   source = "./network"
 }
-
 # ---------------------------------------------------------------------------------------------------------------------
 # CREATE THE codebuild project
 # ---------------------------------------------------------------------------------------------------------------------
@@ -43,26 +45,9 @@ module "task_faq_chatbot" {
   image                    = "292242131230.dkr.ecr.eu-west-2.amazonaws.com/faq_chat:latest"
   containerPort            = 80
 }
-
-# ---------------------------------------------------------------------------------------------------------------------
-# CREATE THE task definition fargate
-# ---------------------------------------------------------------------------------------------------------------------
-/*
-module "task_faq_chatbot_fargate" {
-  source = "./task-def"
-
-  name                     = "faq_chatbot_fargate"
-  requires_compatibilities = "FARGATE"
-  container_name           = "faq_chatbot"
-  image                    = "292242131230.dkr.ecr.eu-west-2.amazonaws.com/faq_chat:latest"
-  containerPort            = 80
-  network_mode             = "awsvpc"
-}
-*/
 # ---------------------------------------------------------------------------------------------------------------------
 # CREATE THE ECS CLUSTER
 # ---------------------------------------------------------------------------------------------------------------------
-
 module "ecs_cluster_faq_chatbot" {
   source = "./ecs-cluster"
 
@@ -79,11 +64,9 @@ module "ecs_cluster_faq_chatbot" {
     "${module.vpc_faq_chatbot.prv_subnet_b_id}",
   ]
 }
-
 # ---------------------------------------------------------------------------------------------------------------------
 # CREATE elb
 # ---------------------------------------------------------------------------------------------------------------------
-
 module "faq_chatbot_elb" {
   source = "./elb"
 
@@ -93,11 +76,9 @@ module "faq_chatbot_elb" {
   instance_port     = "80"
   health_check_path = "health"
 }
-
 # ---------------------------------------------------------------------------------------------------------------------
 # CREATE ecs service
 # ---------------------------------------------------------------------------------------------------------------------
-
 module "faq_chatbot_service" {
   source = "./ecs-service"
 
@@ -117,7 +98,9 @@ module "faq_chatbot_service" {
   task_def_arn          = "${module.task_faq_chatbot.task_def_arn}"
   deployment_controller = "CODE_DEPLOY"
 }
-
+# ---------------------------------------------------------------------------------------------------------------------
+# CREATE THE Deployment app and deployment group
+# ---------------------------------------------------------------------------------------------------------------------
 module "faq_codedeploy" {
   source = "./deployment"
 
@@ -131,7 +114,9 @@ module "faq_codedeploy" {
   target_group_name2 = "${module.faq_chatbot_elb.target_group2_name}"
   compute_platform   = "ECS"
 }
-
+# ---------------------------------------------------------------------------------------------------------------------
+# CREATE THE Codepipeline
+# ---------------------------------------------------------------------------------------------------------------------
 module "Faq_codePipeline" {
   source = "./pipeline"
 
@@ -143,4 +128,25 @@ module "Faq_codePipeline" {
 
   bucket = "${module.repos.s3_bucket_location}"
   bucket_arn = "${module.repos.s3_bucket_arn}"
+
+  token = ""
 }
+
+
+#------------------------------------------------test-------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
+# CREATE THE task definition fargate
+# ----------------------------------------------------------------------------------------------------------------------
+/*
+module "task_faq_chatbot_fargate" {
+  source = "./task-def"
+
+  name                     = "faq_chatbot_fargate"
+  requires_compatibilities = "FARGATE"
+  container_name           = "faq_chatbot"
+  image                    = "292242131230.dkr.ecr.eu-west-2.amazonaws.com/faq_chat:latest"
+  containerPort            = 80
+  network_mode             = "awsvpc"
+}
+*/
+

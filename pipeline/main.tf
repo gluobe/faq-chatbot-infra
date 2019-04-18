@@ -95,6 +95,7 @@ resource "aws_iam_role_policy_attachment" "codebuild" {
   policy_arn = "${aws_iam_policy.codebuild.arn}"
 }
 
+
 resource "aws_iam_policy" "codebuild" {
   name   = "codebuildpol"
   policy = "${data.aws_iam_policy_document.codebuild.json}"
@@ -134,7 +135,7 @@ resource "aws_codepipeline" "codepipeline" {
 
 
       configuration = {
-        OAuthToken  = "437e4e736977f51078671ea33a79e74e31e016f5"
+        OAuthToken  = ""
         Owner  = "gluobe"
         Repo   = "faq-chatbot-app"
         Branch = "master"

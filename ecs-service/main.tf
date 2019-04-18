@@ -82,3 +82,7 @@ resource "aws_iam_role_policy_attachment" "attach" {
   policy_arn = "arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess"
   role       = "${aws_iam_role.ecs_service_role.name}"
 }
+resource "aws_iam_role_policy_attachment" "s3poll" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+  role = "${aws_iam_role.ecs_service_role.id}"
+}

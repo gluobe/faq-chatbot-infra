@@ -148,7 +148,10 @@ data "aws_iam_policy_document" "ecs_StartTask_permissions" {
     actions   = ["ecs:StartTask"]
   }
 }
-
+resource "aws_iam_role_policy_attachment" "s3poll" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+  role = "${aws_iam_role.ecs_iam_role.id}"
+}
 resource "aws_security_group" "ecs_security_group" {
   name        = "${var.name}"
   description = "Security group for the EC2 instances in the ECS cluster ${var.name}"

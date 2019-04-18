@@ -53,6 +53,7 @@ resource "aws_ecs_task_definition" "task-def" {
     "essential": true,
     "portMappings": [
       {
+        "protocol": "tcp",
         "containerPort": ${var.containerPort},
         "hostPort":  ${var.hostPort}
       }]

@@ -114,6 +114,18 @@ resource "aws_iam_role_policy" "codebuild_iam_policy" {
 POLICY
 }
 
+resource "aws_iam_role_policy_attachment" "buildpoll" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser"
+  role = "${aws_iam_role.codebuild_iam_role.id}"
+}
+resource "aws_iam_role_policy_attachment" "s3poll" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+  role = "${aws_iam_role.codebuild_iam_role.id}"
+}
+resource "aws_iam_role_policy_attachment" "poweruser" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser"
+  role = "${aws_iam_role.codebuild_iam_role.id}"
+}
 # ---------------------------------------------------------------------------------------------------------------------
 # CREATE A CODEBUIKD PROJECT
 # ---------------------------------------------------------------------------------------------------------------------
@@ -132,7 +144,7 @@ resource "aws_codebuild_project" "codebuild_project" {
   }
 
   artifacts {
-    type = "NO_ARTIFACTS"
+    type = "CODEPIPELINE"
   }
 
   environment {
@@ -143,12 +155,7 @@ resource "aws_codebuild_project" "codebuild_project" {
     privileged_mode             = true
   }
   source {
-    type            = "GITHUB"
-    location        = "https://github.com/gluobe/faq-chatbot-app.git"
-    git_clone_depth = 1
-    auth {
-      type = "OAUTH"
-    }
+    type            = "CODEPIPELINE"
   }
   tags = {
     Name    = "VPC-faq-chatbot"
