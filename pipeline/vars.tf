@@ -21,6 +21,3 @@ variable "bucket" {
 variable "bucket_arn" {
   description = "artifact bucket arn"
 }
-variable "token" {
-  description = "Github oauth token"
-}

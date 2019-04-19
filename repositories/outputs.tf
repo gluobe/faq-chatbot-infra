@@ -1,4 +1,4 @@
-output "ecs_cluster_id" {
+output "ecr_url" {
   value = "${aws_ecr_repository.ecr.repository_url}"
 }
 output "s3_bucket_location" {

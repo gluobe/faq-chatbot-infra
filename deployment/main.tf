@@ -76,7 +76,31 @@ resource "aws_iam_role_policy" "awscodedeployecsPol" {
 
 EOF
 }
-
+#-----------------------------------------------------------------------------------------------------------------------
+# SNS topic
+#-----------------------------------------------------------------------------------------------------------------------
+resource "aws_sns_topic" "deploymenttopic" {
+  name = "pipeline-deployment"
+  delivery_policy = <<EOF
+{
+  "http": {
+    "defaultHealthyRetryPolicy": {
+      "minDelayTarget": 20,
+      "maxDelayTarget": 20,
+      "numRetries": 3,
+      "numMaxDelayRetries": 0,
+      "numNoDelayRetries": 0,
+      "numMinDelayRetries": 0,
+      "backoffFunction": "linear"
+    },
+    "disableSubscriptionOverrides": false,
+    "defaultThrottlePolicy": {
+      "maxReceivesPerSecond": 1
+    }
+  }
+}
+EOF
+}
 # ---------------------------------------------------------------------------------------------------------------------
 # CREATE A DEPLOYMENT GROUP
 # ---------------------------------------------------------------------------------------------------------------------
@@ -108,6 +132,11 @@ resource "aws_codedeploy_deployment_group" "deplyment_group" {
     service_name = "${var.service_name}"
   }
 
+  trigger_configuration {
+    trigger_events = ["DeploymentStart"]
+    trigger_name = "pipeline trigger"
+    trigger_target_arn = "${aws_sns_topic.deploymenttopic.arn}"
+  }
 
   load_balancer_info {
     target_group_pair_info {
