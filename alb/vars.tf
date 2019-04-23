@@ -18,10 +18,6 @@ variable "subnet_ids" {
   type        = "list"
 }
 
-variable "instance_port" {
-  description = "The port the EC2 Instance is listening on. The ELB will route traffic to this port."
-}
-
 variable "health_check_path" {
   description = "The path on the instance the ELB can use for health checks. Do NOT include a leading slash."
 }
@@ -54,4 +50,7 @@ variable "lb_port" {
 variable "project_naam" {
   default     = "Faq-chatbot"
   description = "The global project name"
+}
+variable "sg_id" {
+  description = "The security group id"
 }

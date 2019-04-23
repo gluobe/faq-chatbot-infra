@@ -50,7 +50,7 @@ resource "aws_launch_configuration" "ecs_launch_config" {
   instance_type        = "${var.instance_type}"
   key_name             = "${var.key_pair_name}"
   iam_instance_profile = "${aws_iam_instance_profile.ecs_iam_instance_profile.name}"
-  security_groups      = ["${aws_security_group.ecs_security_group.id}"]
+  security_groups      = ["${var.sg_id}"]
   image_id             = "${data.aws_ami.ecs_ami.id}"
 
   user_data = <<EOF
@@ -151,47 +151,4 @@ data "aws_iam_policy_document" "ecs_StartTask_permissions" {
 resource "aws_iam_role_policy_attachment" "s3poll" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
   role = "${aws_iam_role.ecs_iam_role.id}"
-}
-resource "aws_security_group" "ecs_security_group" {
-  name        = "${var.name}"
-  description = "Security group for the EC2 instances in the ECS cluster ${var.name}"
-  vpc_id      = "${var.vpc_id}"
-
-  lifecycle {
-    create_before_destroy = true
-  }
-
-  tags = {
-    Name    = "ecs_security_group"
-    Project = "${var.project_naam}"
-  }
-}
-
-resource "aws_security_group_rule" "all_outbound_all" {
-  type              = "egress"
-  from_port         = 0
-  to_port           = 0
-  protocol          = "-1"
-  cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.ecs_security_group.id}"
-}
-
-resource "aws_security_group_rule" "all_inbound_ssh" {
-  type              = "ingress"
-  from_port         = 22
-  to_port           = 22
-  protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/0"]
-  security_group_id = "${aws_security_group.ecs_security_group.id}"
-}
-
-resource "aws_security_group_rule" "all_inbound_ports" {
-  count = "${length(var.allow_inbound_ports_and_cidr_blocks)}"
-
-  type              = "ingress"
-  from_port         = "${element(keys(var.allow_inbound_ports_and_cidr_blocks), count.index)}"
-  to_port           = "${element(keys(var.allow_inbound_ports_and_cidr_blocks), count.index)}"
-  protocol          = "tcp"
-  cidr_blocks       = ["${lookup(var.allow_inbound_ports_and_cidr_blocks, element(keys(var.allow_inbound_ports_and_cidr_blocks), count.index))}"]
-  security_group_id = "${aws_security_group.ecs_security_group.id}"
 }

@@ -79,6 +79,7 @@ EOF
 #-----------------------------------------------------------------------------------------------------------------------
 # SNS topic
 #-----------------------------------------------------------------------------------------------------------------------
+/*
 resource "aws_sns_topic" "deploymenttopic" {
   name = "pipeline-deployment"
   delivery_policy = <<EOF
@@ -101,6 +102,7 @@ resource "aws_sns_topic" "deploymenttopic" {
 }
 EOF
 }
+*/
 # ---------------------------------------------------------------------------------------------------------------------
 # CREATE A DEPLOYMENT GROUP
 # ---------------------------------------------------------------------------------------------------------------------
@@ -131,13 +133,13 @@ resource "aws_codedeploy_deployment_group" "deplyment_group" {
     cluster_name = "${var.cluster_name}"
     service_name = "${var.service_name}"
   }
-
+/*
   trigger_configuration {
     trigger_events = ["DeploymentStart"]
     trigger_name = "pipeline trigger"
     trigger_target_arn = "${aws_sns_topic.deploymenttopic.arn}"
   }
-
+*/
   load_balancer_info {
     target_group_pair_info {
       prod_traffic_route {

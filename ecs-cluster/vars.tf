@@ -27,7 +27,9 @@ variable "subnet_ids" {
   description = "The subnet IDs in which to deploy the EC2 Instances of the ECS Cluster."
   type        = "list"
 }
-
+variable "sg_id" {
+  description = "The security group id"
+}
 # ---------------------------------------------------------------------------------------------------------------------
 # OPTIONAL MODULE PARAMETERS
 # These variables have defaults, but may be overridden by the operator.

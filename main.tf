@@ -22,19 +22,18 @@ module "repos" {
 module "vpc_faq_chatbot" {
   source = "./network"
 }
-
 # ---------------------------------------------------------------------------------------------------------------------
-# CREATE elb
+# CREATE THE security group
 # ---------------------------------------------------------------------------------------------------------------------
-module "faq_chatbot_elb" {
-  source = "./elb"
 
-  subnet_ids        = ["${module.vpc_faq_chatbot.pbl_subnet_a_id}", "${module.vpc_faq_chatbot.pbl_subnet_b_id}"]
-  name              = "faq-chatbot-elb"
-  vpc_id            = "${module.vpc_faq_chatbot.vpc_id}"
-  instance_port     = "80"
-  health_check_path = "health"
+module "security_group" {
+  source = "/security"
+
+  name = "faq-chatbot"
+  project_naam = "faq-chatbot"
+  vpc_id = "${module.vpc_faq_chatbot.vpc_id}"
 }
+
 # ---------------------------------------------------------------------------------------------------------------------
 # CREATE THE codebuild project
 # ---------------------------------------------------------------------------------------------------------------------
@@ -46,18 +45,33 @@ module "build_project_faq_chatbot" {
 
 }
 
+/*
 
+# ---------------------------------------------------------------------------------------------------------------------
+# CREATE elb
+# ---------------------------------------------------------------------------------------------------------------------
+module "faq_chatbot_elb" {
+  source = "./alb"
+
+  subnet_ids        = ["${module.vpc_faq_chatbot.pbl_subnet_a_id}", "${module.vpc_faq_chatbot.pbl_subnet_b_id}"]
+  name              = "faq-chatbot-elb"
+  vpc_id            = "${module.vpc_faq_chatbot.vpc_id}"
+  health_check_path = "/slack/events"
+  sg_id = "${module.security_group.sg_id}"
+}
 # ---------------------------------------------------------------------------------------------------------------------
 # CREATE THE task definition
 # ---------------------------------------------------------------------------------------------------------------------
 module "task_faq_chatbot" {
   source = "./task-def"
 
-  name                     = "faq_chatbot"
+  name                     = "faq_chatbot1"
   requires_compatibilities = "EC2"
   container_name           = "faq_chatbot"
   image                    = "${module.repos.ecr_url}"
   containerPort            = 3000
+  hostPort = 3000
+  network_mode = "bridge"
 }
 # ---------------------------------------------------------------------------------------------------------------------
 # CREATE THE ECS CLUSTER
@@ -65,7 +79,7 @@ module "task_faq_chatbot" {
 module "ecs_cluster_faq_chatbot" {
   source = "./ecs-cluster"
 
-  name          = "faq-chatbot"
+  name          = "faq-chatbot1"
   max_size      = 6
   min_size      = 1
   instance_type = "t2.micro"
@@ -77,6 +91,7 @@ module "ecs_cluster_faq_chatbot" {
     "${module.vpc_faq_chatbot.prv_subnet_a_id}",
     "${module.vpc_faq_chatbot.prv_subnet_b_id}",
   ]
+  sg_id = "${module.security_group.sg_id}"
 }
 # ---------------------------------------------------------------------------------------------------------------------
 # CREATE ecs service
@@ -95,13 +110,13 @@ module "faq_chatbot_service" {
   desired_count = 1
 
   container_port = "3000"
-  host_port      = "80"
+  host_port      = "3000"
   elb_tg_arn     = "${module.faq_chatbot_elb.target_group1_arn}"
 
   task_def_arn          = "${module.task_faq_chatbot.task_def_arn}"
   deployment_controller = "CODE_DEPLOY"
 }
-
+/*
 # ---------------------------------------------------------------------------------------------------------------------
 # CREATE THE Deployment app and deployment group
 # ---------------------------------------------------------------------------------------------------------------------
