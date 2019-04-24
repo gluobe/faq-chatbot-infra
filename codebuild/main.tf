@@ -1,8 +1,8 @@
-# ---------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 # CREATE A IAM ROLE
-# ---------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 resource "aws_iam_role" "codebuild_iam_role" {
-  name = "${var.name}"
+  name = "${var.name}-build-role"
 
   tags = {
     Name    = "codebuild_iam_role"
@@ -24,7 +24,6 @@ resource "aws_iam_role" "codebuild_iam_role" {
 }
 EOF
 }
-
 resource "aws_iam_role_policy" "codebuild_iam_policy" {
   role = "${aws_iam_role.codebuild_iam_role.name}"
 
@@ -113,7 +112,6 @@ resource "aws_iam_role_policy" "codebuild_iam_policy" {
 }
 POLICY
 }
-
 resource "aws_iam_role_policy_attachment" "buildpoll" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser"
   role = "${aws_iam_role.codebuild_iam_role.id}"
@@ -126,16 +124,16 @@ resource "aws_iam_role_policy_attachment" "poweruser" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser"
   role = "${aws_iam_role.codebuild_iam_role.id}"
 }
-# ---------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 # CREATE A CODEBUIKD PROJECT
-# ---------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 resource "aws_codebuild_project" "codebuild_project" {
-  name          = "${var.name}"
+  name          = "${var.name}-build"
   build_timeout = "5"
   service_role  = "${aws_iam_role.codebuild_iam_role.arn}"
 
   tags = {
-    Name    = "codebuild_project"
+    Name    = "codebuild project"
     Project = "${var.project_naam}"
   }
   cache {
@@ -158,8 +156,7 @@ resource "aws_codebuild_project" "codebuild_project" {
     type            = "CODEPIPELINE"
   }
   tags = {
-    Name    = "VPC-faq-chatbot"
+    Name    = "Codebuild project"
     Project = "${var.name}"
   }
 }
-

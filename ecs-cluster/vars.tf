@@ -30,29 +30,8 @@ variable "subnet_ids" {
 variable "sg_id" {
   description = "The security group id"
 }
-# ---------------------------------------------------------------------------------------------------------------------
-# OPTIONAL MODULE PARAMETERS
-# These variables have defaults, but may be overridden by the operator.
-# ---------------------------------------------------------------------------------------------------------------------
-
-variable "allow_inbound_ports_and_cidr_blocks" {
-  description = "A map of port to CIDR block. For each entry in this map, the ESC Cluster will allow incoming requests on the specified port from the specified CIDR blocks."
-  type        = "map"
-  default     = {}
-}
-
-variable "key_pair_name" {
-  description = "The name of an EC2 Key Pair to associate with each EC2 Instance in the ECS Cluster. Leave blank to not associate a Key Pair."
-  default     = ""
-}
-
-variable "allow_ssh_from_cidr_blocks" {
-  description = "The list of CIDR-formatted IP address ranges from which the EC2 Instances in the ECS Cluster should accept SSH connections."
-  type        = "list"
-  default     = []
-}
-
 variable "project_naam" {
   default     = "Faq-chatbot"
   description = "The global project name"
 }
+

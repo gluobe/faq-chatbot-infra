@@ -1,3 +1,7 @@
+# ----------------------------------------------------------------------------------------------------------------------
+# REQUIRED MODULE PARAMETERS
+# These variables must be passed in by the operator.
+# ----------------------------------------------------------------------------------------------------------------------
 variable "name" {
   description = "The name of pipeline"
 }
@@ -20,4 +24,7 @@ variable "bucket" {
 }
 variable "bucket_arn" {
   description = "artifact bucket arn"
+}
+variable "project_naam" {
+  description = "The name of the project"
 }

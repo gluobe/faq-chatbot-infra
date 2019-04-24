@@ -1,13 +1,10 @@
-# ---------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 # REQUIRED MODULE PARAMETERS
 # These variables must be passed in by the operator.
-# ---------------------------------------------------------------------------------------------------------------------
-
+# ----------------------------------------------------------------------------------------------------------------------
 variable "name" {
-  description = "De naam van de elastic load balancer "
+  description = "The name of load balancer "
 }
-
-#andere var
 
 variable "vpc_id" {
   description = "The ID of the VPC in which to deploy the ELB."
@@ -19,9 +16,24 @@ variable "subnet_ids" {
 }
 
 variable "health_check_path" {
-  description = "The path on the instance the ELB can use for health checks. Do NOT include a leading slash."
+  description = "The path on the instance the ELB can use for health checks."
 }
 
+variable "project_naam" {
+  description = "The global project name"
+}
+# ----------------------------------------------------------------------------------------------------------------------
+# OPTIONAL MODULE PARAMETERS
+# These variables have defaults, but may be overridden by the operator.
+# ----------------------------------------------------------------------------------------------------------------------
+variable "sg_id" {
+  description = "The security group id"
+}
+
+variable "port" {
+  description = "The port on which targets receive traffic, unless overridden when registering a specific target. "
+  default     = 80
+}
 variable "targed_type" {
   description = "The type of target that you must specify when registering targets with this target group."
   default     = "instance"
@@ -32,25 +44,10 @@ variable "protocol" {
   default     = "HTTP"
 }
 
-variable "port" {
-  description = "The port on which targets receive traffic, unless overridden when registering a specific target. "
-  default     = 80
+variable "load_balancer_type" {
+  description = "The type of load balancer to create. Possible values are application or network. The default value is application."
+  default = "application"
 }
 
-# ---------------------------------------------------------------------------------------------------------------------
-# OPTIONAL MODULE PARAMETERS
-# These variables have defaults, but may be overridden by the operator.
-# ---------------------------------------------------------------------------------------------------------------------
 
-variable "lb_port" {
-  description = "The port the ELB listens on."
-  default     = 80
-}
 
-variable "project_naam" {
-  default     = "Faq-chatbot"
-  description = "The global project name"
-}
-variable "sg_id" {
-  description = "The security group id"
-}
