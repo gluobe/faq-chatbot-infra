@@ -74,11 +74,11 @@ resource "aws_iam_role_policy_attachment" "attach" {
   policy_arn = "arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess"
   role       = "${aws_iam_role.ecs_service_role.name}"
 }
+
 resource "aws_iam_role_policy_attachment" "s3poll" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
-  role = "${aws_iam_role.ecs_service_role.id}"
+  role       = "${aws_iam_role.ecs_service_role.id}"
 }
-
 
 # ---------------------------------------------------------------------------------------------------------------------
 # task definition
@@ -135,5 +135,6 @@ resource "aws_ecs_service" "ecs_service" {
     container_name   = "${var.name}"
     container_port   = "${var.containerPort}"
   }
-  depends_on = ["aws_iam_role_policy.ecs_service_policy","aws_ecs_task_definition.task-def"]
+
+  depends_on = ["aws_iam_role_policy.ecs_service_policy", "aws_ecs_task_definition.task-def"]
 }

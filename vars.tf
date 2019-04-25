@@ -10,5 +10,5 @@ variable "project_naam" {
 
 variable "name" {
   description = "The overalname to use"
-  default = "Faq-chatbot"
+  default     = "Faq-chatbot"
 }

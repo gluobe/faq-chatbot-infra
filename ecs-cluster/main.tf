@@ -81,9 +81,10 @@ data "aws_iam_policy_document" "ecs_StartTask_permissions" {
     actions   = ["ecs:StartTask"]
   }
 }
+
 resource "aws_iam_role_policy_attachment" "s3poll" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
-  role = "${aws_iam_role.ecs_iam_role.id}"
+  role       = "${aws_iam_role.ecs_iam_role.id}"
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -107,7 +108,6 @@ resource "aws_autoscaling_group" "ecs_autoscaling_group" {
   max_size             = "${var.max_size}"
   launch_configuration = "${aws_launch_configuration.ecs_launch_config.name}"
   vpc_zone_identifier  = ["${var.subnet_ids}"]
-
 }
 
 # ---------------------------------------------------------------------------------------------------------------------

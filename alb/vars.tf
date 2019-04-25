@@ -22,6 +22,7 @@ variable "health_check_path" {
 variable "project_naam" {
   description = "The global project name"
 }
+
 # ----------------------------------------------------------------------------------------------------------------------
 # OPTIONAL MODULE PARAMETERS
 # These variables have defaults, but may be overridden by the operator.
@@ -34,6 +35,7 @@ variable "port" {
   description = "The port on which targets receive traffic, unless overridden when registering a specific target. "
   default     = 80
 }
+
 variable "targed_type" {
   description = "The type of target that you must specify when registering targets with this target group."
   default     = "instance"
@@ -46,8 +48,5 @@ variable "protocol" {
 
 variable "load_balancer_type" {
   description = "The type of load balancer to create. Possible values are application or network. The default value is application."
-  default = "application"
+  default     = "application"
 }
-
-
-

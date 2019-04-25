@@ -27,11 +27,12 @@ variable "subnet_ids" {
   description = "The subnet IDs in which to deploy the EC2 Instances of the ECS Cluster."
   type        = "list"
 }
+
 variable "sg_id" {
   description = "The security group id"
 }
+
 variable "project_naam" {
   default     = "Faq-chatbot"
   description = "The global project name"
 }
-

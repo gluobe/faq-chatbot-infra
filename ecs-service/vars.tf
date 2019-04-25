@@ -5,6 +5,7 @@
 variable "requires_compatibilities" {
   description = "A set of launch types required by the task. The valid values are EC2 and FARGATE."
 }
+
 variable "containerPort" {
   description = "The port exposed on the container"
 }
@@ -52,6 +53,7 @@ variable "cpu" {
 variable "memory" {
   description = "The amount of memory, in MB, to give the ECS Task."
 }
+
 variable "desired_count" {
   description = "The number of ECS Tasks to run for this ECS Service."
 }
@@ -59,6 +61,7 @@ variable "desired_count" {
 variable "elb_tg_arn" {
   description = "The name of the ELB with which this ECS Service should register."
 }
+
 variable "project_naam" {
   description = "The global project name"
 }
@@ -76,6 +79,7 @@ variable "task_memory" {
   description = "The amount (in MiB) of memory used by the task."
   default     = "64"
 }
+
 variable "scheduling_strategy" {
   description = "The scheduling strategy to use for the service. The valid values are REPLICA and DAEMON. Note that Fargate tasks do not support the DAEMON scheduling strategy."
   default     = "REPLICA"

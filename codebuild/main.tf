@@ -24,6 +24,7 @@ resource "aws_iam_role" "codebuild_iam_role" {
 }
 EOF
 }
+
 resource "aws_iam_role_policy" "codebuild_iam_policy" {
   role = "${aws_iam_role.codebuild_iam_role.name}"
 
@@ -112,18 +113,22 @@ resource "aws_iam_role_policy" "codebuild_iam_policy" {
 }
 POLICY
 }
+
 resource "aws_iam_role_policy_attachment" "buildpoll" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser"
-  role = "${aws_iam_role.codebuild_iam_role.id}"
+  role       = "${aws_iam_role.codebuild_iam_role.id}"
 }
+
 resource "aws_iam_role_policy_attachment" "s3poll" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
-  role = "${aws_iam_role.codebuild_iam_role.id}"
+  role       = "${aws_iam_role.codebuild_iam_role.id}"
 }
+
 resource "aws_iam_role_policy_attachment" "poweruser" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser"
-  role = "${aws_iam_role.codebuild_iam_role.id}"
+  role       = "${aws_iam_role.codebuild_iam_role.id}"
 }
+
 # ----------------------------------------------------------------------------------------------------------------------
 # CREATE A CODEBUIKD PROJECT
 # ----------------------------------------------------------------------------------------------------------------------
@@ -136,6 +141,7 @@ resource "aws_codebuild_project" "codebuild_project" {
     Name    = "codebuild project"
     Project = "${var.project_naam}"
   }
+
   cache {
     type     = "S3"
     location = "${var.bucket_location}"
@@ -152,9 +158,11 @@ resource "aws_codebuild_project" "codebuild_project" {
     image_pull_credentials_type = "CODEBUILD"
     privileged_mode             = true
   }
+
   source {
-    type            = "CODEPIPELINE"
+    type = "CODEPIPELINE"
   }
+
   tags = {
     Name    = "Codebuild project"
     Project = "${var.name}"

@@ -1,4 +1,3 @@
-
 # ---------------------------------------------------------------------------------------------------------------------
 # CREATE A SECURITY GROUP
 # ---------------------------------------------------------------------------------------------------------------------
@@ -7,7 +6,6 @@ resource "aws_security_group" "ec2_security_group" {
   name        = "${var.name}"
   description = "Security group for the EC2 instances in the ECS cluster ${var.name}"
   vpc_id      = "${var.vpc_id}"
-
 
   lifecycle {
     create_before_destroy = true

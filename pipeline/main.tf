@@ -61,7 +61,6 @@ resource "aws_iam_role_policy_attachment" "s3" {
   policy_arn = "${aws_iam_policy.s3.arn}"
 }
 
-
 resource "aws_iam_policy" "s3" {
   name   = "s3policy"
   policy = "${data.aws_iam_policy_document.s3.json}"
@@ -92,7 +91,6 @@ resource "aws_iam_role_policy_attachment" "codebuild" {
   policy_arn = "${aws_iam_policy.codebuild.arn}"
 }
 
-
 resource "aws_iam_policy" "codebuild" {
   name   = "codebuildpol"
   policy = "${data.aws_iam_policy_document.codebuild.json}"
@@ -122,6 +120,7 @@ resource "aws_codepipeline" "codepipeline" {
     location = "${var.bucket}"
     type     = "S3"
   }
+
   stage {
     name = "Source"
 
@@ -133,12 +132,11 @@ resource "aws_codepipeline" "codepipeline" {
       version          = "1"
       output_artifacts = ["code"]
 
-
       configuration = {
-        OAuthToken  = ""
-        Owner  = "gluobe"
-        Repo   = "faq-chatbot-app"
-        Branch = "master"
+        OAuthToken = ""
+        Owner      = "gluobe"
+        Repo       = "faq-chatbot-app"
+        Branch     = "master"
       }
     }
   }
@@ -147,13 +145,13 @@ resource "aws_codepipeline" "codepipeline" {
     name = "Build"
 
     action {
-      name            = "Build"
-      category        = "Build"
-      owner           = "AWS"
-      provider        = "CodeBuild"
-      input_artifacts = ["code"]
+      name             = "Build"
+      category         = "Build"
+      owner            = "AWS"
+      provider         = "CodeBuild"
+      input_artifacts  = ["code"]
       output_artifacts = ["image"]
-      version         = "1"
+      version          = "1"
 
       configuration = {
         ProjectName = "${var.build_project_name}"
@@ -165,17 +163,17 @@ resource "aws_codepipeline" "codepipeline" {
     name = "Deploy"
 
     action {
-      name             = "Deploy"
-      category         = "Deploy"
-      owner            = "AWS"
-      provider         = "ECS"
-      input_artifacts  = ["image"]
-      version          = "1"
+      name            = "Deploy"
+      category        = "Deploy"
+      owner           = "AWS"
+      provider        = "ECS"
+      input_artifacts = ["image"]
+      version         = "1"
 
       configuration {
         ClusterName = "${var.ClusterName}"
         ServiceName = "${var.ServiceName}"
-        FileName = "imagedefinitions.json"
+        FileName    = "imagedefinitions.json"
       }
     }
   }
