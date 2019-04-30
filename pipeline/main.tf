@@ -109,9 +109,21 @@ data "aws_iam_policy_document" "codebuild" {
   }
 }
 
+resource "aws_iam_role_policy_attachment" "ssm" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMFullAccess"
+  role = "${aws_iam_role.pipeline_iam_role.name}"
+}
+resource "aws_iam_role_policy_attachment" "kms" {
+  policy_arn = "arn:aws:iam::aws:policy/AWSKeyManagementServicePowerUser"
+  role = "${aws_iam_role.pipeline_iam_role.name}"
+}
+
 #-----------------------------------------------------------------------------------------------------------------------
 # create a code pipeline
 #-----------------------------------------------------------------------------------------------------------------------
+data "aws_ssm_parameter" "github_token" {
+  name = "github_token"
+}
 resource "aws_codepipeline" "codepipeline" {
   name     = "${var.name}-pipeline"
   role_arn = "${aws_iam_role.pipeline_iam_role.arn}"
@@ -133,7 +145,7 @@ resource "aws_codepipeline" "codepipeline" {
       output_artifacts = ["code"]
 
       configuration = {
-        OAuthToken = ""
+        OAuthToken = "${data.aws_ssm_parameter.github_token.value}"
         Owner      = "gluobe"
         Repo       = "faq-chatbot-app"
         Branch     = "master"

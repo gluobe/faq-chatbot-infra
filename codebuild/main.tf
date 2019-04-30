@@ -129,6 +129,15 @@ resource "aws_iam_role_policy_attachment" "poweruser" {
   role       = "${aws_iam_role.codebuild_iam_role.id}"
 }
 
+resource "aws_iam_role_policy_attachment" "ssm" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMFullAccess"
+  role = "${aws_iam_role.codebuild_iam_role.name}"
+}
+resource "aws_iam_role_policy_attachment" "kms" {
+  policy_arn = "arn:aws:iam::aws:policy/AWSKeyManagementServicePowerUser"
+  role = "${aws_iam_role.codebuild_iam_role.name}"
+}
+
 # ----------------------------------------------------------------------------------------------------------------------
 # CREATE A CODEBUIKD PROJECT
 # ----------------------------------------------------------------------------------------------------------------------
@@ -157,6 +166,17 @@ resource "aws_codebuild_project" "codebuild_project" {
     type                        = "LINUX_CONTAINER"
     image_pull_credentials_type = "CODEBUILD"
     privileged_mode             = true
+
+    environment_variable {
+      "name"  = "SLACK_SECRET"
+      "value" = "${data.aws_ssm_parameter.slack_secret.value}"
+      "type"  = "PARAMETER_STORE"
+    }
+    environment_variable {
+      "name"  = "SLACK_ACCES_TOKEN"
+      "value" = "${data.aws_ssm_parameter.slack_token.value}"
+      "type"  = "PARAMETER_STORE"
+    }
   }
 
   source {
@@ -167,4 +187,11 @@ resource "aws_codebuild_project" "codebuild_project" {
     Name    = "Codebuild project"
     Project = "${var.name}"
   }
+}
+
+data "aws_ssm_parameter" "slack_secret" {
+  name = "slack_secret"
+}
+data "aws_ssm_parameter" "slack_token" {
+  name = "slack_acces_token"
 }
