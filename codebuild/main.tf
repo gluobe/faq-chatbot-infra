@@ -167,16 +167,6 @@ resource "aws_codebuild_project" "codebuild_project" {
     image_pull_credentials_type = "CODEBUILD"
     privileged_mode             = true
 
-    environment_variable {
-      "name"  = "SLACK_SECRET"
-      "value" = "${data.aws_ssm_parameter.slack_secret.value}"
-      "type"  = "PARAMETER_STORE"
-    }
-    environment_variable {
-      "name"  = "SLACK_ACCES_TOKEN"
-      "value" = "${data.aws_ssm_parameter.slack_token.value}"
-      "type"  = "PARAMETER_STORE"
-    }
   }
 
   source {
@@ -187,11 +177,4 @@ resource "aws_codebuild_project" "codebuild_project" {
     Name    = "Codebuild project"
     Project = "${var.name}"
   }
-}
-
-data "aws_ssm_parameter" "slack_secret" {
-  name = "slack_secret"
-}
-data "aws_ssm_parameter" "slack_token" {
-  name = "slack_acces_token"
 }

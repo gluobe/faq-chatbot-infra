@@ -79,7 +79,15 @@ resource "aws_iam_role_policy_attachment" "s3poll" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
   role       = "${aws_iam_role.ecs_service_role.id}"
 }
-
+#------
+# data
+#-------
+data "aws_ssm_parameter" "slack_secret" {
+  name = "slack_secret"
+}
+data "aws_ssm_parameter" "slack_token" {
+  name = "slack_acces_token"
+}
 # ---------------------------------------------------------------------------------------------------------------------
 # task definition
 # ---------------------------------------------------------------------------------------------------------------------
@@ -104,6 +112,16 @@ resource "aws_ecs_task_definition" "task-def" {
     "name": "${var.container_name}",
     "image": "${var.image}",
     "essential": true,
+    "Environment": [
+      {
+        "Name": "SLACK_SECRET",
+        "Value":"${data.aws_ssm_parameter.slack_secret.value}"
+      },
+      {
+        "Name":"SLACK_ACCES_TOKEN",
+        "Value":"${data.aws_ssm_parameter.slack_token.value}"
+      }
+    ],
     "portMappings": [
       {
         "protocol": "tcp",
