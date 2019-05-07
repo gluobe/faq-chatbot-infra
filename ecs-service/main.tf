@@ -88,6 +88,15 @@ data "aws_ssm_parameter" "slack_secret" {
 data "aws_ssm_parameter" "slack_token" {
   name = "slack_acces_token"
 }
+data "aws_ssm_parameter" "db_password" {
+  name = "db_password"
+}
+data "aws_ssm_parameter" "db_user" {
+  name = "db_user"
+}
+data "aws_ssm_parameter" "db_host" {
+  name = "db_host"
+}
 # ---------------------------------------------------------------------------------------------------------------------
 # task definition
 # ---------------------------------------------------------------------------------------------------------------------
@@ -120,6 +129,18 @@ resource "aws_ecs_task_definition" "task-def" {
       {
         "Name":"SLACK_ACCES_TOKEN",
         "Value":"${data.aws_ssm_parameter.slack_token.value}"
+      },
+      {
+        "Name":"DB_HOST",
+        "Value":"${data.aws_ssm_parameter.db_host.value}"
+      },
+      {
+        "Name":"DB_USER",
+        "Value":"${data.aws_ssm_parameter.db_user.value}"
+      },
+      {
+        "Name":"DB_PASSWORD",
+        "Value":"${data.aws_ssm_parameter.db_password.value}"
       }
     ],
     "portMappings": [
