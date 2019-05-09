@@ -97,6 +97,21 @@ data "aws_ssm_parameter" "db_user" {
 data "aws_ssm_parameter" "db_host" {
   name = "db_host"
 }
+
+
+
+data "aws_ssm_parameter" "confluence_url" {
+  name = "confluence-url"
+}
+data "aws_ssm_parameter" "confluence_pw" {
+  name = "confluence_pw"
+}
+data "aws_ssm_parameter" "confluence_usernaam" {
+  name = "confluence_usernaam"
+}
+data "aws_ssm_parameter" "database" {
+  name = "database"
+}
 # ---------------------------------------------------------------------------------------------------------------------
 # task definition
 # ---------------------------------------------------------------------------------------------------------------------
@@ -141,6 +156,22 @@ resource "aws_ecs_task_definition" "task-def" {
       {
         "Name":"DB_PASSWORD",
         "Value":"${data.aws_ssm_parameter.db_password.value}"
+      },
+      {
+        "Name":"CONFLUENCE_URL",
+        "Value":"${data.aws_ssm_parameter.confluence_url.value}"
+      },
+      {
+        "Name":"CONFLUENCE_USER",
+        "Value":"${data.aws_ssm_parameter.confluence_usernaam.value}"
+      },
+      {
+        "Name":"CONFLUENCE_PW",
+        "Value":"${data.aws_ssm_parameter.confluence_pw.value}"
+      },
+      {
+        "Name":"DB_NAME",
+        "Value":"${data.aws_ssm_parameter.database.value}"
       }
     ],
     "portMappings": [
